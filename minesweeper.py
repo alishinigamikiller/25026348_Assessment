@@ -366,6 +366,48 @@ class Game:
                                 else:
                                     self.flags_placed += 1
                                     cell.is_flagged = True
+                        
+                        # --- Middle Click (Chording) ---
+                        elif event.button == 2:
+                            if cell.is_revealed and cell.adjacent_mines > 0:
+                                # Count flagged neighbors
+                                flagged_neighbors = 0
+                                for dr in [-1, 0, 1]:
+                                    for dc in [-1, 0, 1]:
+                                        if dr == 0 and dc == 0:
+                                            continue
+                                        
+                                        nr, nc = row + dr, col + dc
+                                        
+                                        # Check boundaries
+                                        if 0 <= nr < self.rows and 0 <= nc < self.cols:
+                                            if self.board[nr][nc].is_flagged:
+                                                flagged_neighbors += 1
+                                
+                                # If we've flagged exactly the right number of neighbors
+                                if flagged_neighbors == cell.adjacent_mines:
+                                    # Reveal all unflagged, unrevealed neighbors
+                                    for dr in [-1, 0, 1]:
+                                        for dc in [-1, 0, 1]:
+                                            if dr == 0 and dc == 0:
+                                                continue
+                                            
+                                            nr, nc = row + dr, col + dc
+                                            
+                                            # Check boundaries
+                                            if 0 <= nr < self.rows and 0 <= nc < self.cols:
+                                                neighbor = self.board[nr][nc]
+                                                # Reveal if not flagged and not already revealed
+                                                if not neighbor.is_flagged and not neighbor.is_revealed:
+                                                    if not self.reveal_cell(nr, nc):
+                                                        # Hit a mine! Game over
+                                                        self.game_over = True
+                                                        self.won = False
+                                                        # Reveal all other mines
+                                                        for r in range(self.rows):
+                                                            for c in range(self.cols):
+                                                                if self.board[r][c].is_mine:
+                                                                    self.board[r][c].is_revealed = True
 
             # --- 2. Update (Check Win) ---
             if not self.game_over:
