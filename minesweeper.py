@@ -102,6 +102,7 @@ class Game:
         self.won = False
         self.flags_placed = 0
         self.first_click = True # Added for "Safe First Click" logic
+        self.start_time = None # Timer for tracking game duration
 
     def start_screen(self):
         """Displays the difficulty selection screen and waits for input."""
@@ -299,6 +300,7 @@ class Game:
         self.won = False
         self.flags_placed = 0
         self.first_click = True # Reset for each new game
+        self.start_time = None # Reset timer for each new game
         
         running = True
         while running:
@@ -335,7 +337,9 @@ class Game:
                         if self.first_click:
                             # 1. Create the board *now*
                             self.board = self.create_board(row, col)
-                            # 2. Mark first click as done
+                            # 2. Start the timer
+                            self.start_time = pygame.time.get_ticks()
+                            # 3. Mark first click as done
                             self.first_click = False
                         
                         cell = self.board[row][col]
@@ -381,6 +385,13 @@ class Game:
             flag_text = ui_font.render(f"Flags: {self.flags_placed} / {self.mines}", True, COLOR_FLAG)
             flag_rect = flag_text.get_rect(midleft=(20, ui_bar_rect.centery))
             self.screen.blit(flag_text, flag_rect)
+            
+            # Draw timer
+            if self.start_time is not None:
+                elapsed_seconds = (pygame.time.get_ticks() - self.start_time) // 1000
+                timer_text = ui_font.render(f"Time: {elapsed_seconds}s", True, COLOR_WHITE)
+                timer_rect = timer_text.get_rect(center=(self.screen_width // 2, ui_bar_rect.centery))
+                self.screen.blit(timer_text, timer_rect)
             
             # If it's the first click, show instruction
             if self.first_click:
