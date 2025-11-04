@@ -15,11 +15,6 @@ pygame.mixer.init()
 # - win.ogg or win.wav (victory sound)
 # You can download free sounds from: freesound.org, zapsplat.com, or similar
 try:
-    import sys
-
-# Add the 'my_folder' (which is in the same directory) to the path
-    sys.path.append('E:/Keele_sem_1/software_programming/assessment_02/files/sounds')
-    # Try to load .ogg files first, then .wav files as fallback
     sound_files = {
         'click': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/click.ogg', 'click.wav'],
         'explosion': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/explosion.ogg', 'explosion.wav'],
