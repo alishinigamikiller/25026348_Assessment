@@ -18,7 +18,7 @@ A small Mine Sweeper Knockoff, self-contained Python game. This README provides 
 ## Installation
 1. Clone the repository:
     ```
-    git clone [https://github.com/alishinigamikiller/25026348_Assessment.git]
+    git clone https://github.com/alishinigamikiller/25026348_Assessment.git
     cd 25026348_Assessment
     ```
 2. Create and activate a virtual environment (recommended):
@@ -50,5 +50,5 @@ python minesweeper.py
 
 ## Contact
 For questions, open an issue or contact the maintainer.
-
+[https://github.com/alishinigamikiller/25026348_Assessment.git]
 ---
