@@ -4,6 +4,69 @@ import random
 
 # --- Pygame Initialization ---
 pygame.init()
+pygame.mixer.init()
+
+# --- Sound Effects ---
+# Note: Sound files are optional - game will work without them
+# To add sounds, place these audio files in the same directory as this script:
+# - click.ogg or click.wav (short click sound for revealing numbered cells)
+# - explosion.ogg or explosion.wav (explosion sound when hitting a mine)
+# - flag.ogg or flag.wav (flag placement/removal sound)
+# - win.ogg or win.wav (victory sound)
+# You can download free sounds from: freesound.org, zapsplat.com, or similar
+try:
+    sound_files = {
+        'click': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/click.ogg', 'click.wav'],
+        'explosion': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/explosion.ogg', 'explosion.wav'],
+        'flag': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/flag.ogg', 'flag.wav'],
+        'win': ['E:/Keele_sem_1/software_programming/assessment_02/files/sounds/win.ogg', 'win.wav']
+    }
+    
+    def load_sound(sound_names):
+        """Try to load sound from multiple file formats"""
+        for sound_file in sound_names:
+            try:
+                return pygame.mixer.Sound(sound_file)
+            except (pygame.error, FileNotFoundError):
+                continue
+        return None
+    
+    click_sound = load_sound(sound_files['click'])
+    explosion_sound = load_sound(sound_files['explosion'])
+    flag_sound = load_sound(sound_files['flag'])
+    win_sound = load_sound(sound_files['win'])
+    
+    # Check if any sounds were loaded
+    loaded_sounds = sum(1 for sound in [click_sound, explosion_sound, flag_sound, win_sound] if sound is not None)
+    
+    if loaded_sounds > 0:
+        sounds_enabled = True
+        print(f"Sound effects loaded successfully! ({loaded_sounds}/4 sounds found)")
+        if click_sound is None: print("  - click sound not found")
+        if explosion_sound is None: print("  - explosion sound not found")
+        if flag_sound is None: print("  - flag sound not found")
+        if win_sound is None: print("  - win sound not found")
+    else:
+        sounds_enabled = False
+        print("No sound files found - game will run without sound effects")
+        print("Supported formats: .ogg, .wav")
+        
+except pygame.error as e:
+    # If sound system fails to initialize
+    click_sound = None
+    explosion_sound = None
+    flag_sound = None
+    win_sound = None
+    sounds_enabled = False
+    print(f"Sound system error: {e} - game will run without sound effects")
+
+def play_sound(sound):
+    """Helper function to safely play sounds"""
+    if sounds_enabled and sound is not None:
+        try:
+            sound.play()
+        except pygame.error:
+            pass  # Ignore sound errors
 
 # --- Game Configuration ---
 # We no longer set ROWS, COLS, MINES here.
@@ -223,7 +286,13 @@ class Game:
         cell.is_revealed = True
         
         if cell.is_mine:
+            # Play explosion sound when hitting a mine
+            play_sound(explosion_sound)
             return False # Hit a mine! Game over.
+
+        # Play click sound for safe cells (but not for 0s to avoid sound spam)
+        if cell.adjacent_mines > 0:
+            play_sound(click_sound)
 
         # --- Recursive step (if cell is 0) ---
         if cell.adjacent_mines == 0:
@@ -363,9 +432,11 @@ class Game:
                                 if cell.is_flagged:
                                     cell.is_flagged = False
                                     self.flags_placed -= 1
+                                    play_sound(flag_sound)  # Play sound when unflagging
                                 else:
                                     self.flags_placed += 1
                                     cell.is_flagged = True
+                                    play_sound(flag_sound)  # Play sound when flagging
                         
                         # --- Middle Click (Chording) ---
                         elif event.button == 2:
@@ -414,6 +485,7 @@ class Game:
                 if self.check_win_condition():
                     self.game_over = True
                     self.won = True
+                    play_sound(win_sound)  # Play sound when winning
 
             # --- 3. Draw ---
             self.screen.fill(COLOR_REVEALED) # Background
