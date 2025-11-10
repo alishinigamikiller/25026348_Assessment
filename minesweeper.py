@@ -1,3 +1,5 @@
+#I acknowledge the use of Gemini Flash 2.5 for the making of this game.
+
 import pygame
 import sys
 import random
